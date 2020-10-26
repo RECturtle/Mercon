@@ -17,8 +17,8 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-# Run nmap on ip with outfile of nmap+target
 def run_nmap(ip, target):
+    """Run nmap on ip with outfile of nmap+target."""
     a = subprocess.run(
         ["nmap", "-sC", "-sV", ip, "-o", "nmap" + target],
         capture_output=True,
@@ -28,10 +28,12 @@ def run_nmap(ip, target):
     return a.stdout
 
 
-# Check for args, if missing print help message
 def check_args(args):
-
-    # If args - return nmap scan. Else - print help
+    """
+    Check to ensure args were provided.
+    If args, run nmap scan and return results
+    If no no args, print help message.
+    """
     if args.target and args.ip:
         target = args.target.title()
         ip = args.ip
@@ -42,8 +44,8 @@ def check_args(args):
         return False
 
 
-# Search for ports in output
 def grab_ports(output):
+    """Search for ports in output."""
     if (checked_args):
         re1 = b'[\n]80[/]'
         re2 = b'[\n]443[/]'
@@ -69,9 +71,14 @@ def grab_ports(output):
         return port_list
 
 
-# Check ports to determine gobuster and/or smbmap
-# 0 = none, 1 = web only, 2 = smb only, 3 = both
 def check_ports(ports):
+    """
+    Check ports to determine running gobuster and/or smbmap.
+    0 = none
+    1 = gobuster
+    2 = smbmap
+    3 = both
+    """
     web = 0
     smb = 0
 
@@ -85,8 +92,9 @@ def check_ports(ports):
     return web + smb
 
 
-#TODO Add in gobuster and smbshare functions
-#TODO Requirements and dependencies
+# TODO Add in gobuster and smbshare functions
+# TODO Requirements and dependencies
+# TODO Tests
 
 checked_args = check_args(args)
 found_ports = grab_ports(checked_args)
