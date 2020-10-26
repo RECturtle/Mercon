@@ -37,6 +37,7 @@ def check_args(args):
     if args.target and args.ip:
         target = args.target.title()
         ip = args.ip
+        print("===== Running Nmap Scan =====")
         ret = run_nmap(ip, target)
         return ret
     else:
@@ -46,7 +47,7 @@ def check_args(args):
 
 def grab_ports(output):
     """Search for ports in output."""
-    if (checked_args):
+    if (output):
         re1 = b'[\n]80[/]'
         re2 = b'[\n]443[/]'
         re3 = b'[\n]139[/]'
@@ -55,8 +56,8 @@ def grab_ports(output):
         # Ports into list
         ports = [re1, re2, re3, re4]
 
-        # Compile each regex and search checked_args for ports
-        p = [re.compile(x).search(checked_args) for x in ports]
+        # Compile each regex and search output for ports
+        p = [re.compile(x).search(output) for x in ports]
 
         # If port found, grab port, convert to string, replace symbols,
         # and add to port_list to be returned.
@@ -92,11 +93,33 @@ def check_ports(ports):
     return web + smb
 
 
+def next_run(results):
+    if results == 0:
+        print(
+            "Nmap did not find standard web or smb ports open.\n"
+            "Check the Nmap outfile to ensure the host was up"\
+            "and the correct ip was used\n"
+        )
+    else:
+        if results == 3:
+            # Run gobuster and smbmap in separate processes
+            print("===== Gobuster and Smbmap Running =====")
+            print("[+] Smbmap Running")
+            print("[+] Gobuster Running")
+        if results == 2:
+            # Run smbmap
+            print("===== Smbmap Running =====")
+        if results == 1:
+            # Ping index.php and run gobuster with -x updated accordingly
+            print("===== Gobuster Running =====")
+
+
+# TODO def print_nmap_output()
 # TODO Add in gobuster and smbshare functions
 # TODO Requirements and dependencies
 # TODO Tests
 
-checked_args = check_args(args)
-found_ports = grab_ports(checked_args)
+nmap_out = check_args(args)
+found_ports = grab_ports(nmap_out)
 nmap_results = check_ports(found_ports)
-print(nmap_results)
+next_run(nmap_results)
