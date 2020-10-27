@@ -14,7 +14,29 @@ parser.add_argument(
     "-i", "--ip",
     help="ip address of target"
 )
+parser.add_argument(
+    "-w", "--wordlist",
+    help="Enter full path to wordlist. This will be used for gobuster scan"
+)
+
 args = parser.parse_args()
+
+
+def check_args(args):
+    """
+    Check to ensure args were provided.
+    If args, run nmap scan and return results
+    If no no args, print help message.
+    """
+    if args.target and args.ip and args.wordlist:
+        target = args.target.title()
+        ip = args.ip
+        print("===== Running Nmap Scan =====")
+        ret = run_nmap(ip, target)
+        return ret
+    else:
+        parser.print_help()
+        return False
 
 
 def run_nmap(ip, target):
@@ -26,23 +48,6 @@ def run_nmap(ip, target):
     )
     # return output from nmap
     return a.stdout
-
-
-def check_args(args):
-    """
-    Check to ensure args were provided.
-    If args, run nmap scan and return results
-    If no no args, print help message.
-    """
-    if args.target and args.ip:
-        target = args.target.title()
-        ip = args.ip
-        print("===== Running Nmap Scan =====")
-        ret = run_nmap(ip, target)
-        return ret
-    else:
-        parser.print_help()
-        return False
 
 
 def grab_ports(output):
@@ -94,6 +99,7 @@ def check_ports(ports):
 
 
 def next_run(results, args):
+    """Based of results of check_ports, run Smbmap, Gobuster, or both"""
     if results == 0:
         print(
             "Nmap did not find standard web or smb ports open.\n"
@@ -110,15 +116,19 @@ def next_run(results, args):
                 capture_output=True,
                 shell=False
             )
+            print_results(smb_out)
 
             print("[+] Gobuster Running")
             go_out = subprocess.run(
-                ["gobuster", "dir", "-u", "http://" + args.ip + "/", "-w",
-                 "/usr/share/wordlists/SecLists/Discovery/Web-Content/raft-small-directories.txt",
-                 "-x", "txt"],
+                ["gobuster", "dir", "-u", "http://" + args.ip + "/",
+                "-w", args.wordlist,
+                 "-x", "txt",
+                 "-o", "gobuster" + args.target],
                 capture_output=True,
                 shell=False
             )
+            print_results(go_out)
+
         elif results == 2:
             # Run smbmap
             print("===== Smbmap Running =====")
@@ -127,26 +137,38 @@ def next_run(results, args):
                 catpure_output=True,
                 shell=False
             )
+            print_results(smb_out)
+
         elif results == 1:
             # Ping index.php and run gobuster with -x updated accordingly
             print("===== Gobuster Running =====")
             go_out = subprocess.run(
-                ["gobuster", "dir", "-u", "http://" + args.ip + "/", "-w",
-                 "/usr/share/wordlists/SecLists/Discovery/Web-Content/raft-small-directories.txt",
-                 "-x", "txt"],
+                ["gobuster", "dir", "-u", "http://" + args.ip + "/",
+                "-w", args.wordlist,
+                 "-x", "txt",
+                 "-o", "gobuster" + args.target],
                 capture_output=True,
                 shell=False
             )
+            print_results(go_out)
+
+
+def print_results(arg):
+    """Convert from b'' to string and print"""
+    string_arg = arg.decode("utf-8")
+    print(string_arg)
+
 
 # TODO Add gobuster curl of index.php to change gobuster command
 # TODO Optimize next_run
-# TODO Add def print_output() - generic command to print output from all subprocess.runs
-# TODO Add in wordlist argument
 # TODO Requirements and dependencies
 # TODO Tests
 
 
-nmap_out = check_args(args)
-found_ports = grab_ports(nmap_out)
-nmap_results = check_ports(found_ports)
-next_run(nmap_results, args)
+if __name__ == '__main__':
+    nmap_out = check_args(args)
+    if (nmap_out):
+        print_results(nmap_out)
+        found_ports = grab_ports(nmap_out)
+        nmap_results = check_ports(found_ports)
+        next_run(nmap_results, args)
