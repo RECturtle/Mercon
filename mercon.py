@@ -93,11 +93,11 @@ def check_ports(ports):
     return web + smb
 
 
-def next_run(results):
+def next_run(results, args):
     if results == 0:
         print(
             "Nmap did not find standard web or smb ports open.\n"
-            "Check the Nmap outfile to ensure the host was up"\
+            "Check the Nmap outfile to ensure the host was up"
             "and the correct ip was used\n"
         )
     else:
@@ -105,21 +105,48 @@ def next_run(results):
             # Run gobuster and smbmap in separate processes
             print("===== Gobuster and Smbmap Running =====")
             print("[+] Smbmap Running")
+            smb_out = subprocess.run(
+                ["smbmap", "-u", "''", "-p", "''", "-H", args.ip],
+                capture_output=True,
+                shell=False
+            )
+
             print("[+] Gobuster Running")
-        if results == 2:
+            go_out = subprocess.run(
+                ["gobuster", "dir", "-u", "http://" + args.ip + "/", "-w",
+                 "/usr/share/wordlists/SecLists/Discovery/Web-Content/raft-small-directories.txt",
+                 "-x", "txt"],
+                capture_output=True,
+                shell=False
+            )
+        elif results == 2:
             # Run smbmap
             print("===== Smbmap Running =====")
-        if results == 1:
+            smb_out = subprocess.run(
+                ["smbmap", "-u", "''", "-p", "''", "-H", args.ip],
+                catpure_output=True,
+                shell=False
+            )
+        elif results == 1:
             # Ping index.php and run gobuster with -x updated accordingly
             print("===== Gobuster Running =====")
+            go_out = subprocess.run(
+                ["gobuster", "dir", "-u", "http://" + args.ip + "/", "-w",
+                 "/usr/share/wordlists/SecLists/Discovery/Web-Content/raft-small-directories.txt",
+                 "-x", "txt"],
+                capture_output=True,
+                shell=False
+            )
 
-
-# TODO def print_nmap_output()
-# TODO Add in gobuster and smbshare functions
+# TODO Add gobuster curl of index.php to change gobuster command
+# TODO Optimize next_run
+# TODO Add def print_output() - generic command to print output from all subprocess.runs
+# TODO Add in wordlist argument
 # TODO Requirements and dependencies
 # TODO Tests
+
 
 nmap_out = check_args(args)
 found_ports = grab_ports(nmap_out)
 nmap_results = check_ports(found_ports)
-next_run(nmap_results)
+next_run(nmap_results, args)
