@@ -4,7 +4,7 @@ import re
 import subprocess
 
 
-# Create arguments for ip and target
+# Create arguments for ip, target, and wordlist
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "-t", "--target",
@@ -160,7 +160,7 @@ def print_results(arg):
 
 
 # TODO Add gobuster curl of index.php to change gobuster command
-# TODO Optimize next_run
+# TODO Refactor next_run - currently has repeat code
 # TODO Requirements and dependencies
 # TODO Tests
 
