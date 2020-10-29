@@ -112,11 +112,11 @@ def next_run(results, args):
             print("===== Gobuster and Smbmap Running =====")
             print("[+] Smbmap Running")
             smb_out = subprocess.run(
-                ["smbmap", "-u", "''", "-p", "''", "-H", args.ip],
+                ["smbmap", "-H", args.ip],
                 capture_output=True,
                 shell=False
             )
-            print_results(smb_out)
+            print_results(smb_out.stdout)
 
             print("[+] Gobuster Running")
             go_out = subprocess.run(
@@ -127,17 +127,17 @@ def next_run(results, args):
                 capture_output=True,
                 shell=False
             )
-            print_results(go_out)
+            print_results(go_out.stdout)
 
         elif results == 2:
             # Run smbmap
             print("===== Smbmap Running =====")
             smb_out = subprocess.run(
-                ["smbmap", "-u", "''", "-p", "''", "-H", args.ip],
-                catpure_output=True,
+                ["smbmap", "-H", args.ip],
+                capture_output=True,
                 shell=False
             )
-            print_results(smb_out)
+            print_results(smb_out.stdout)
 
         elif results == 1:
             # Ping index.php and run gobuster with -x updated accordingly
@@ -150,7 +150,7 @@ def next_run(results, args):
                 capture_output=True,
                 shell=False
             )
-            print_results(go_out)
+            print_results(go_out.stdout)
 
 
 def print_results(arg):
