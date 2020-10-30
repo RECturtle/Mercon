@@ -98,58 +98,57 @@ def check_ports(ports):
     return web + smb
 
 
+def go_run:
+    """Run gobuster and return output"""
+    print("[+] Gobuster Running")
+    go_complete = subprocess.run(
+        ["gobuster", "dir", "-u", "http://" + args.ip + "/",
+        "-w", args.wordlist,
+        "-x", "txt",
+        "-o", "gobuster" + args.target],
+        capture_output=True,
+        shell=False
+    )
+    return go_complete
+
+
+def smb_run(args):
+    """Run smbmap and return output"""
+    print("[+] Smbmap Running")
+    smb_complete = subprocess.run(
+        ["smbmap", "-H", args.ip],
+        capture_output=True,
+        shell=False
+    )
+    return smb_complete
+
+
 def next_run(results, args):
     """Based of results of check_ports, run Smbmap, Gobuster, or both"""
     if results == 0:
         print(
             "Nmap did not find standard web or smb ports open.\n"
-            "Check the Nmap outfile to ensure the host was up"
+            "Check the Nmap outfile to ensure the host was up "
             "and the correct ip was used\n"
         )
     else:
         if results == 3:
             # Run gobuster and smbmap in separate processes
             print("===== Gobuster and Smbmap Running =====")
-            print("[+] Smbmap Running")
-            smb_out = subprocess.run(
-                ["smbmap", "-H", args.ip],
-                capture_output=True,
-                shell=False
-            )
+            smb_out = smb_run(args)
             print_results(smb_out.stdout)
 
-            print("[+] Gobuster Running")
-            go_out = subprocess.run(
-                ["gobuster", "dir", "-u", "http://" + args.ip + "/",
-                "-w", args.wordlist,
-                 "-x", "txt",
-                 "-o", "gobuster" + args.target],
-                capture_output=True,
-                shell=False
-            )
+            go_out = go_run(args)
             print_results(go_out.stdout)
 
         elif results == 2:
             # Run smbmap
-            print("===== Smbmap Running =====")
-            smb_out = subprocess.run(
-                ["smbmap", "-H", args.ip],
-                capture_output=True,
-                shell=False
-            )
+            smb_out = smb_run(args)
             print_results(smb_out.stdout)
 
         elif results == 1:
             # Ping index.php and run gobuster with -x updated accordingly
-            print("===== Gobuster Running =====")
-            go_out = subprocess.run(
-                ["gobuster", "dir", "-u", "http://" + args.ip + "/",
-                "-w", args.wordlist,
-                 "-x", "txt",
-                 "-o", "gobuster" + args.target],
-                capture_output=True,
-                shell=False
-            )
+            go_out = go_run(args)
             print_results(go_out.stdout)
 
 
