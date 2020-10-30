@@ -129,7 +129,7 @@ def next_run(results, args):
         print(
             "Nmap did not find standard web or smb ports open.\n"
             "Check the Nmap outfile to ensure the host was up "
-            "and the correct ip was used\n"
+            "and the correct ip was used.\n"
         )
     else:
         if results == 3:
