@@ -98,7 +98,7 @@ def check_ports(ports):
     return web + smb
 
 
-def go_run:
+def go_run(args):
     """Run gobuster and return output"""
     print("[+] Gobuster Running")
     go_complete = subprocess.run(
