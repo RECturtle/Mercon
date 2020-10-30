@@ -103,9 +103,9 @@ def go_run(args):
     print("[+] Gobuster Running")
     go_complete = subprocess.run(
         ["gobuster", "dir", "-u", "http://" + args.ip + "/",
-        "-w", args.wordlist,
-        "-x", "txt",
-        "-o", "gobuster" + args.target],
+            "-w", args.wordlist,
+            "-x", "txt",
+            "-o", "gobuster" + args.target],
         capture_output=True,
         shell=False
     )
