@@ -158,8 +158,6 @@ def print_results(arg):
     print(string_arg)
 
 
-# TODO Add gobuster curl of index.php to change gobuster command
-# TODO Refactor next_run - currently has repeat code
 # TODO Requirements and dependencies
 # TODO Tests
 
